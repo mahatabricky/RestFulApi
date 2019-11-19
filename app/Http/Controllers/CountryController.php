@@ -52,5 +52,31 @@ class CountryController extends Controller
     }
     /*
       Update Country Data
+      @param int $id
     */
+    public function update(Request $request,$id)
+    {
+      $singleCountry =AppCountry::find($id); // Retrieve specific country to update
+      if(empty($singleCountry))
+         return response()->json(["error" => "Data not found"]);
+              
+         $singleCountry->name =$request->name;
+         $singleCountry->ISO  = $request->ISO;
+         $singleCountry->short_name = $request->short_name;
+         $singleCountry->code = $request->code;
+         $singleCountry->save();
+      
+      return response()->json(["msg" => "Country has been updated Successfully."]);
+
+    }
+    /*
+      Delete specifc country
+      @param int $id
+    */
+    public function delete($id)
+    {
+      $singleCountry= AppCountry::find($id);
+      $singleCountry->delete();
+      return response()->json(["msg" => "Successfully Deleted"]);
+    }
 }
