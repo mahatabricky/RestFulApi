@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Country as AppCountry;
-
 use Illuminate\Http\Request;
+use Validator;
 
 class CountryController extends Controller
 {
@@ -27,7 +27,18 @@ class CountryController extends Controller
     public function store(Request $request)
     {
     
-         $countryStore =AppCountry::create(
+      $rules = [
+        'name' => 'required|string',
+        'ISO'  => 'required',
+        'short_name' => 'required',
+        'code' => 'required',
+      ];
+
+      $validator = Validator::make($request->all(),$rules);  
+      if($validator->fails())
+        return response()->json($validator->errors(),401);
+
+      $countryStore =AppCountry::create(
         [   'name'=> $request->name,
             'ISO' => $request->ISO,
             'short_name' => $request->short_name,
@@ -59,14 +70,23 @@ class CountryController extends Controller
       $singleCountry =AppCountry::find($id); // Retrieve specific country to update
       if(empty($singleCountry))
          return response()->json(["error" => "Data not found"]);
-              
+         $rules = [
+          'name' => 'required|string',
+          'ISO'  => 'required',
+          'short_name' => 'required',
+          'code' => 'required',
+        ];
+  
+        $validator = Validator::make($request->all(),$rules);  
+        if($validator->fails())
+          return response()->json($validator->errors(),401);     
          $singleCountry->name =$request->name;
          $singleCountry->ISO  = $request->ISO;
          $singleCountry->short_name = $request->short_name;
          $singleCountry->code = $request->code;
          $singleCountry->save();
       
-      return response()->json(["msg" => "Country has been updated Successfully."]);
+        return response()->json(["msg" => "Country has been updated Successfully."]);
 
     }
     /*
@@ -76,6 +96,8 @@ class CountryController extends Controller
     public function delete($id)
     {
       $singleCountry= AppCountry::find($id);
+      if(empty($singleCountry))
+        return response()->json(["msg" => "This country is not found"]);
       $singleCountry->delete();
       return response()->json(["msg" => "Successfully Deleted"]);
     }
